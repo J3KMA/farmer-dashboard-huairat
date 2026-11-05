@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แดชบอร์ดทะเบียนเกษตรกร อ.ห้วยราช จ.บุรีรัมย์</title>
+
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    /* ========================================================
+       ระบบสีเด่นชัด 5 สี (5-Color High Contrast System):
+       1. #FFFFFF (ขาว)      : พื้นหลังการ์ด / ตัวหนังสือบนพื้นมืด
+       2. #0B132B (ดำเนวี่)   : พื้นหลัง / ตัวอักษรหลัก / ขอบเส้นโครงสร้าง
+       3. #059669 (เขียวมรกต) : เกษตรกรรม / ข้าว / สถานะผ่าน / จุดเด่น 1
+       4. #2563EB (น้ำเงินสด) : เทคโนโลยี / FARMBOOK / มันสำปะหลัง / จุดเด่น 2
+       5. #D97706 (อำพันทอง)  : พืชไร่ / อ้อย / รอประชาคม / จุดเด่น 3
+       ======================================================== */
+    :root {
+      --c-white:    #FFFFFF;
+      --c-dark:     #0B132B;
+      --c-green:    #059669;
+      --c-blue:     #2563EB;
+      --c-amber:    #D97706;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--c-white);
+      color: var(--c-dark);
+      line-height: 1.5;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Layout Container */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--c-dark);
+      color: var(--c-white);
+      padding: 24px 32px;
+      border: 3px solid var(--c-dark);
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title p {
+      font-size: 14px;
+      color: var(--c-white);
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    /* 5-Color Palette Legend */
+    .palette-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--c-white);
+      color: var(--c-dark);
+      padding: 8px 14px;
+      border: 2px solid var(--c-white);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .color-swatch {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--c-dark);
+      display: inline-block;
+    }
+
+    /* Action Buttons */
+    .btn {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 20px;
+      border: 2px solid var(--c-dark);
+      background: var(--c-white);
+      color: var(--c-dark);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--c-dark);
+      color: var(--c-white);
+    }
+
+    .btn-green {
+      background: var(--c-green);
+      color: var(--c-white);
+      border-color: var(--c-green);
+    }
+    .btn-green:hover {
+      background: var(--c-white);
+      color: var(--c-green);
+      border-color: var(--c-green);
+    }
+
+    .btn-blue {
+      background: var(--c-blue);
+      color: var(--c-white);
+      border-color: var(--c-blue);
+    }
+    .btn-blue:hover {
+      background: var(--c-white);
+      color: var(--c-blue);
+      border-color: var(--c-blue);
+    }
+
+    .btn-amber {
+      background: var(--c-amber);
+      color: var(--c-white);
+      border-color: var(--c-amber);
+    }
+    .btn-amber:hover {
+      background: var(--c-white);
+      color: var(--c-amber);
+      border-color: var(--c-amber);
+    }
+
+    /* Filter Panel */
+    .filter-section {
+      background: var(--c-white);
+      border: 3px solid var(--c-dark);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--c-dark);
+    }
+
+    .filter-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--c-dark);
+    }
+
+    .filter-group select, .filter-group input {
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid var(--c-dark);
+      background: var(--c-white);
+      color: var(--c-dark);
+      font-weight: 500;
+      outline: none;
+      width: 100%;
+    }
+
+    .filter-group select:focus, .filter-group input:focus {
+      border-color: var(--c-blue);
+    }
+
+    /* Year Pill Buttons */
+    .year-pills {
+      display: flex;
+      gap: 8px;
+    }
+
+    .year-pill {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 2px solid var(--c-dark);
+      background: var(--c-white);
+      color: var(--c-dark);
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .year-pill.active {
+      background: var(--c-dark);
+      color: var(--c-white);
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--c-white);
+      border: 3px solid var(--c-dark);
+      padding: 22px 24px;
+      position: relative;
+    }
+
+    .kpi-card.kpi-green {
+      border-top: 8px solid var(--c-green);
+    }
+    .kpi-card.kpi-blue {
+      border-top: 8px solid var(--c-blue);
+    }
+    .kpi-card.kpi-amber {
+      border-top: 8px solid var(--c-amber);
+    }
+    .kpi-card.kpi-dark {
+      border-top: 8px solid var(--c-dark);
+    }
+
+    .kpi-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--c-dark);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--c-dark);
+      margin-bottom: 6px;
+      letter-spacing: -1px;
+    }
+
+    .kpi-sub {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .text-green { color: var(--c-green) !important; }
+    .text-blue { color: var(--c-blue) !important; }
+    .text-amber { color: var(--c-amber) !important; }
+    .text-dark { color: var(--c-dark) !important; }
+
+    /* Analytics Chart Grid */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background: var(--c-white);
+      border: 3px solid var(--c-dark);
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--c-dark);
+    }
+
+    .chart-card-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .chart-container {
+      position: relative;
+      flex: 1;
+      min-height: 280px;
+    }
+
+    /* Map Section */
+    .map-section {
+      background: var(--c-white);
+      border: 3px solid var(--c-dark);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .map-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--c-dark);
+      gap: 12px;
+    }
+
+    .map-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .map-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--c-dark);
+      display: inline-block;
+    }
+
+    #map {
+      height: 480px;
+      width: 100%;
+      border: 2px solid var(--c-dark);
+    }
+
+    /* Data Table Section */
+    .table-section {
+      background: var(--c-white);
+      border: 3px solid var(--c-dark);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .table-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--c-dark);
+      gap: 12px;
+    }
+
+    .table-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .table-search-box {
+      display: flex;
+      gap: 8px;
+      min-width: 280px;
+    }
+
+    .table-search-box input {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 2px solid var(--c-dark);
+      width: 100%;
+      outline: none;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--c-dark);
+      color: var(--c-white);
+      padding: 12px 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      border: 1px solid var(--c-dark);
+    }
+
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--c-dark);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    tr:hover {
+      background: var(--c-white);
+      outline: 2px solid var(--c-blue);
+    }
+
+    /* Badges (using strictly the 5 colors) */
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1.5px solid var(--c-dark);
+    }
+
+    .badge-green {
+      background: var(--c-green);
+      color: var(--c-white);
+      border-color: var(--c-dark);
+    }
+
+    .badge-blue {
+      background: var(--c-blue);
+      color: var(--c-white);
+      border-color: var(--c-dark);
+    }
+
+    .badge-amber {
+      background: var(--c-amber);
+      color: var(--c-white);
+      border-color: var(--c-dark);
+    }
+
+    .badge-dark {
+      background: var(--c-dark);
+      color: var(--c-white);
+    }
+
+    /* Table Pagination */
+    .pagination-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 2px solid var(--c-dark);
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .page-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .page-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 2px solid var(--c-dark);
+      background: var(--c-white);
+      color: var(--c-dark);
+      cursor: pointer;
+    }
+
+    .page-btn:hover, .page-btn.active {
+      background: var(--c-dark);
+      color: var(--c-white);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Footer */
+    footer {
+      border: 3px solid var(--c-dark);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--c-white);
+      margin-top: 12px;
+    }
+
+    /* Leaflet Popup Minimal High Contrast */
+    .leaflet-popup-content-wrapper {
+      border-radius: 0 !important;
+      border: 3px solid var(--c-dark) !important;
+      box-shadow: none !important;
+      padding: 6px !important;
+    }
+    .leaflet-popup-content {
+      font-family: 'Prompt', sans-serif !important;
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+      margin: 10px !important;
+      color: var(--c-dark) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Top Header -->
+    <header>
+      <div class="header-title">
+        <h1>🌾 แดชบอร์ดทะเบียนเกษตรกร อ.ห้วยราช จ.บุรีรัมย์</h1>
+        <p>วิเคราะห์ข้อมูลแปลงเพาะปลูก สถิติพืชเศรษฐกิจ และการประชาคม ปี 2565 – 2567</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <!-- 5-Color System Legend -->
+        <div class="palette-badge" title="ระบบออกแบบจำกัด 5 สีตัดกันชัดเจน">
+          <span>🎨 5 สีตัดกัน:</span>
+          <span class="color-swatch" style="background: #FFFFFF;" title="#FFFFFF ขาว"></span>
+          <span class="color-swatch" style="background: #0B132B;" title="#0B132B ดำเนวี่"></span>
+          <span class="color-swatch" style="background: #059669;" title="#059669 เขียวมรกต"></span>
+          <span class="color-swatch" style="background: #2563EB;" title="#2563EB น้ำเงินสด"></span>
+          <span class="color-swatch" style="background: #D97706;" title="#D97706 อำพันทอง"></span>
+        </div>
+        <button id="btnExport" class="btn btn-green">
+          📥 ส่งออกข้อมูล (CSV)
+        </button>
+      </div>
+    </header>
+
+    <!-- Filters Section -->
+    <section class="filter-section">
+      <div class="filter-header">
+        <h2>⚡ ตัวกรองข้อมูลอัจฉริยะ (Interactive Filters)</h2>
+        <div style="font-size: 13px; font-weight: 700;">
+          แสดงข้อมูล: <span id="filteredCountText" class="text-blue">กำลังโหลด...</span>
+        </div>
+      </div>
+
+      <div class="filter-grid">
+        <!-- Year Pill Toggle -->
+        <div class="filter-group">
+          <label>ปีงบประมาณ / ปีทะเบียน</label>
+          <div class="year-pills">
+            <button class="year-pill active" data-year="ALL">ทั้งหมด</button>
+            <button class="year-pill" data-year="2565">2565</button>
+            <button class="year-pill" data-year="2566">2566</button>
+            <button class="year-pill" data-year="2567">2567</button>
+          </div>
+        </div>
+
+        <!-- Tambon -->
+        <div class="filter-group">
+          <label for="selectTambon">ตำบล</label>
+          <select id="selectTambon">
+            <option value="ALL">-- ทุกตำบล (7 ตำบล) --</option>
+          </select>
+        </div>
+
+        <!-- Crop -->
+        <div class="filter-group">
+          <label for="selectCrop">ชนิดพืช</label>
+          <select id="selectCrop">
+            <option value="ALL">-- ทุกชนิดพืช --</option>
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div class="filter-group">
+          <label for="selectStatus">สถานะการประชาคม</label>
+          <select id="selectStatus">
+            <option value="ALL">-- ทุกสถานะ --</option>
+          </select>
+        </div>
+
+        <!-- Channel -->
+        <div class="filter-group">
+          <label for="selectChannel">ช่องทางบันทึก</label>
+          <select id="selectChannel">
+            <option value="ALL">-- ทุกช่องทาง --</option>
+            <option value="ทบก">ทบก</option>
+            <option value="FARMBOOK">FARMBOOK</option>
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="filter-group">
+          <label>&nbsp;</label>
+          <button id="btnResetFilters" class="btn">
+            🔄 ล้างตัวกรองทั้งหมด
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI Cards -->
+    <section class="kpi-grid">
+      <!-- Total Plots -->
+      <div class="kpi-card kpi-dark">
+        <div class="kpi-title">แปลงเพาะปลูกทั้งหมด</div>
+        <div class="kpi-value" id="kpiTotalPlots">0</div>
+        <div class="kpi-sub text-dark">
+          <span>สัดส่วน:</span>
+          <strong id="kpiPlotsPercent">100%</strong>
+          <span>ของข้อมูลอำเภอ</span>
+        </div>
+      </div>
+
+      <!-- Total Rai -->
+      <div class="kpi-card kpi-green">
+        <div class="kpi-title text-green">เนื้อที่เพาะปลูกรวม (ไร่)</div>
+        <div class="kpi-value text-green" id="kpiTotalArea">0.00</div>
+        <div class="kpi-sub text-dark">
+          <span>เฉลี่ย:</span>
+          <strong id="kpiAvgArea">0.0</strong>
+          <span>ไร่ / แปลง</span>
+        </div>
+      </div>
+
+      <!-- Approved Rate -->
+      <div class="kpi-card kpi-amber">
+        <div class="kpi-title text-amber">ผ่านการประชาคมแล้ว</div>
+        <div class="kpi-value text-amber" id="kpiApprovedRate">0%</div>
+        <div class="kpi-sub text-dark">
+          <span>จำนวน:</span>
+          <strong id="kpiApprovedCount">0</strong>
+          <span>แปลง</span>
+        </div>
+      </div>
+
+      <!-- FARMBOOK Rate -->
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-title text-blue">ขึ้นทะเบียนผ่าน FARMBOOK</div>
+        <div class="kpi-value text-blue" id="kpiFarmbookRate">0%</div>
+        <div class="kpi-sub text-dark">
+          <span>จำนวน:</span>
+          <strong id="kpiFarmbookCount">0</strong>
+          <span>แปลง</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Analytics Charts (2x2 Grid) -->
+    <section class="chart-grid">
+      <!-- Chart 1: Yearly Trend -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>📊 แนวโน้มเนื้อที่เพาะปลูกรายปี (ไร่)</h3>
+          <span class="badge badge-dark">2565 - 2567</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartYearTrend"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Top Crops -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>🌾 สัดส่วนพืชเศรษฐกิจหลัก (เนื้อที่ไร่)</h3>
+          <span class="badge badge-green">5 อันดับแรก</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartTopCrops"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: Area by Tambon -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>📍 เนื้อที่เพาะปลูกแยกตามตำบล (ไร่)</h3>
+          <span class="badge badge-blue">7 ตำบล</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartTambon"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 4: Channels & Approval -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>📱 ช่องทางบันทึก (ทบก vs FARMBOOK)</h3>
+          <span class="badge badge-amber">สัดส่วนช่องทาง</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartChannel"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+      <div class="map-header">
+        <div>
+          <h3>🗺️ แผนที่พิกัดแปลงเพาะปลูกจริง (อำเภอห้วยราช)</h3>
+          <span style="font-size: 13px; font-weight: 500;">แสดงตำแหน่งพิกัดแปลงจริงบนแผนที่ภูมิศาสตร์</span>
+        </div>
+        <div class="map-legend">
+          <div class="map-legend-item">
+            <span class="legend-dot" style="background: #059669;"></span>
+            <span>ข้าว (ข้าวเจ้า / ข้าวเหนียว)</span>
+          </div>
+          <div class="map-legend-item">
+            <span class="legend-dot" style="background: #2563EB;"></span>
+            <span>มันสำปะหลัง / ยางพารา</span>
+          </div>
+          <div class="map-legend-item">
+            <span class="legend-dot" style="background: #D97706;"></span>
+            <span>อ้อยโรงงาน / พืชอื่นๆ</span>
+          </div>
+        </div>
+      </div>
+      <div id="map"></div>
+    </section>
+
+    <!-- Data Table Section -->
+    <section class="table-section">
+      <div class="table-header">
+        <div>
+          <h3>📋 รายการแปลงเพาะปลูกและทะเบียนเกษตรกร</h3>
+          <span style="font-size: 13px; font-weight: 500;">ค้นหาและตรวจสอบรายละเอียดแปลงเกษตรกรรายบุคคล</span>
+        </div>
+        <div class="table-search-box">
+          <input type="text" id="tableSearch" placeholder="🔍 ค้นหาชื่อเกษตรกร, พืช, พันธุ์, ตำบล...">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ชื่อ-นามสกุล เกษตรกร</th>
+              <th>ตำบล</th>
+              <th>หมู่</th>
+              <th>ชนิดพืช</th>
+              <th>พันธุ์</th>
+              <th style="text-align: right;">เนื้อที่ (ไร่)</th>
+              <th>เอกสารสิทธิ์</th>
+              <th>สถานะประชาคม</th>
+              <th>ช่องทาง</th>
+              <th>ปีทะเบียน</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-bar">
+        <div>
+          แสดง <span id="pageInfoText">0 - 0 จาก 0 รายการ</span>
+        </div>
+        <div class="page-controls">
+          <button id="btnPrevPage" class="page-btn">◀ ก่อนหน้า</button>
+          <span id="pageCurrentNumber" style="padding: 6px 12px; font-weight: 700;">1</span>
+          <button id="btnNextPage" class="page-btn">ถัดไป ▶</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clean High Contrast Footer -->
+    <footer>
+      แดชบอร์ดทะเบียนเกษตรกร อ.ห้วยราช จ.บุรีรัมย์ | ออกแบบสไตล์เรียบง่ายและคุมโทน 5 สีตัดกัน (#FFFFFF, #0B132B, #059669, #2563EB, #D97706)
+    </footer>
+
+  </div>
+
+  <!-- Load Dataset Script -->
+  <script src="data.js"></script>
+
+  <!-- Application Logic -->
+  <script>
+    // ==========================================
+    // Strict 5-Color System Definition
+    // ==========================================
+    const COLORS = {
+      white: '#FFFFFF',
+      dark:  '#0B132B',
+      green: '#059669',
+      blue:  '#2563EB',
+      amber: '#D97706'
+    };
+
+    // Global App State
+    let rawRecords = [];
+    let filteredRecords = [];
+    let selectedYear = 'ALL';
+    let currentPage = 1;
+    const pageSize = 15;
+
+    // Charts instances
+    let chartYearTrend = null;
+    let chartTopCrops = null;
+    let chartTambon = null;
+    let chartChannel = null;
+
+    // Leaflet map
+    let map = null;
+    let mapMarkerLayer = null;
+
+    // Col indexes from data.js:
+    // ['name', 'moo', 'tambon', 'crop', 'variety', 'area', 'doc', 'status', 'channel', 'year', 'plant', 'harvest', 'lat', 'lon']
+    const C = {
+      name: 0, moo: 1, tambon: 2, crop: 3, variety: 4,
+      area: 5, doc: 6, status: 7, channel: 8, year: 9,
+      plant: 10, harvest: 11, lat: 12, lon: 13
+    };
+
+    // Initialize App
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!window.FARM_DATA || !window.FARM_DATA.rows) {
+        alert('ไม่พบข้อมูล FARM_DATA กรุณาตรวจสอบไฟล์ data.js');
+        return;
+      }
+
+      rawRecords = window.FARM_DATA.rows;
+      initFilters();
+      initMap();
+      applyFilters();
+    });
+
+    // Populate Filter Dropdowns
+    function initFilters() {
+      const tambonSet = new Set();
+      const cropSet = new Set();
+      const statusSet = new Set();
+
+      rawRecords.forEach(r => {
+        if (r[C.tambon]) tambonSet.add(r[C.tambon]);
+        if (r[C.crop]) cropSet.add(r[C.crop]);
+        if (r[C.status]) statusSet.add(r[C.status]);
+      });
+
+      // Tambon
+      const selectTambon = document.getElementById('selectTambon');
+      Array.from(tambonSet).sort((a,b) => a.localeCompare(b, 'th')).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = `ตำบล` + t;
+        selectTambon.appendChild(opt);
+      });
+
+      // Crop
+      const selectCrop = document.getElementById('selectCrop');
+      Array.from(cropSet).sort((a,b) => a.localeCompare(b, 'th')).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        selectCrop.appendChild(opt);
+      });
+
+      // Status
+      const selectStatus = document.getElementById('selectStatus');
+      Array.from(statusSet).sort((a,b) => a.localeCompare(b, 'th')).forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        selectStatus.appendChild(opt);
+      });
+
+      // Year pills event
+      document.querySelectorAll('.year-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.year-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedYear = btn.dataset.year;
+          currentPage = 1;
+          applyFilters();
+        });
+      });
+
+      // Change events
+      selectTambon.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+      selectCrop.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+      selectStatus.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+      document.getElementById('selectChannel').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+
+      // Reset
+      document.getElementById('btnResetFilters').addEventListener('click', () => {
+        selectedYear = 'ALL';
+        document.querySelectorAll('.year-pill').forEach(b => {
+          b.classList.toggle('active', b.dataset.year === 'ALL');
+        });
+        selectTambon.value = 'ALL';
+        selectCrop.value = 'ALL';
+        selectStatus.value = 'ALL';
+        document.getElementById('selectChannel').value = 'ALL';
+        document.getElementById('tableSearch').value = '';
+        currentPage = 1;
+        applyFilters();
+      });
+
+      // Table search
+      document.getElementById('tableSearch').addEventListener('input', () => {
+        currentPage = 1;
+        renderTable();
+      });
+
+      // Pagination
+      document.getElementById('btnPrevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      });
+      document.getElementById('btnNextPage').addEventListener('click', () => {
+        const searchVal = document.getElementById('tableSearch').value.trim().toLowerCase();
+        const searched = getSearchedRecords(searchVal);
+        const maxPage = Math.ceil(searched.length / pageSize) || 1;
+        if (currentPage < maxPage) {
+          currentPage++;
+          renderTable();
+        }
+      });
+
+      // Export CSV
+      document.getElementById('btnExport').addEventListener('click', exportCSV);
+    }
+
+    // Apply Filter Logic
+    function applyFilters() {
+      const tambonVal = document.getElementById('selectTambon').value;
+      const cropVal = document.getElementById('selectCrop').value;
+      const statusVal = document.getElementById('selectStatus').value;
+      const channelVal = document.getElementById('selectChannel').value;
+
+      filteredRecords = rawRecords.filter(r => {
+        if (selectedYear !== 'ALL' && r[C.year] !== selectedYear) return false;
+        if (tambonVal !== 'ALL' && r[C.tambon] !== tambonVal) return false;
+        if (cropVal !== 'ALL' && r[C.crop] !== cropVal) return false;
+        if (statusVal !== 'ALL' && r[C.status] !== statusVal) return false;
+        if (channelVal !== 'ALL' && r[C.channel] !== channelVal) return false;
+        return true;
+      });
+
+      // Update text count
+      const pct = ((filteredRecords.length / rawRecords.length) * 100).toFixed(1);
+      document.getElementById('filteredCountText').textContent = 
+        `${filteredRecords.length.toLocaleString()} แปลง (${pct}%)`;
+
+      updateKPIs();
+      renderCharts();
+      updateMapMarkers();
+      renderTable();
+    }
+
+    // KPI Calculations
+    function updateKPIs() {
+      const total = filteredRecords.length;
+      let totalArea = 0;
+      let approvedCount = 0;
+      let farmbookCount = 0;
+
+      filteredRecords.forEach(r => {
+        totalArea += (r[C.area] || 0);
+        if (r[C.status] === 'ผ่าน') approvedCount++;
+        if (r[C.channel] === 'FARMBOOK') farmbookCount++;
+      });
+
+      const avgArea = total > 0 ? (totalArea / total).toFixed(1) : '0.0';
+      const approvedPct = total > 0 ? ((approvedCount / total) * 100).toFixed(1) : 0;
+      const farmbookPct = total > 0 ? ((farmbookCount / total) * 100).toFixed(1) : 0;
+      const totalPct = ((total / rawRecords.length) * 100).toFixed(1);
+
+      document.getElementById('kpiTotalPlots').textContent = total.toLocaleString();
+      document.getElementById('kpiPlotsPercent').textContent = `${totalPct}%`;
+
+      document.getElementById('kpiTotalArea').textContent = totalArea.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      document.getElementById('kpiAvgArea').textContent = avgArea;
+
+      document.getElementById('kpiApprovedRate').textContent = `${approvedPct}%`;
+      document.getElementById('kpiApprovedCount').textContent = approvedCount.toLocaleString();
+
+      document.getElementById('kpiFarmbookRate').textContent = `${farmbookPct}%`;
+      document.getElementById('kpiFarmbookCount').textContent = farmbookCount.toLocaleString();
+    }
+
+    // Render Charts
+    function renderCharts() {
+      // 1. Yearly Trend
+      const yearAreaMap = { '2565': 0, '2566': 0, '2567': 0 };
+      const yearCountMap = { '2565': 0, '2566': 0, '2567': 0 };
+
+      filteredRecords.forEach(r => {
+        if (yearAreaMap[r[C.year]] !== undefined) {
+          yearAreaMap[r[C.year]] += (r[C.area] || 0);
+          yearCountMap[r[C.year]]++;
+        }
+      });
+
+      const ctxYear = document.getElementById('chartYearTrend').getContext('2d');
+      if (chartYearTrend) chartYearTrend.destroy();
+      chartYearTrend = new Chart(ctxYear, {
+        type: 'bar',
+        data: {
+          labels: ['ปี 2565', 'ปี 2566', 'ปี 2567'],
+          datasets: [{
+            label: 'เนื้อที่รวม (ไร่)',
+            data: [
+              Math.round(yearAreaMap['2565']),
+              Math.round(yearAreaMap['2566']),
+              Math.round(yearAreaMap['2567'])
+            ],
+            backgroundColor: [COLORS.green, COLORS.blue, COLORS.amber],
+            borderColor: COLORS.dark,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: COLORS.dark,
+              titleColor: COLORS.white,
+              bodyColor: COLORS.white,
+              borderColor: COLORS.white,
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => ` ${ctx.raw.toLocaleString()} ไร่`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: COLORS.dark, font: { family: 'Prompt', weight: '600' } },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { color: COLORS.dark, font: { family: 'Prompt' } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // 2. Top Crops
+      const cropAreaMap = {};
+      filteredRecords.forEach(r => {
+        const crop = r[C.crop] || 'อื่นๆ';
+        cropAreaMap[crop] = (cropAreaMap[crop] || 0) + (r[C.area] || 0);
+      });
+
+      const sortedCrops = Object.entries(cropAreaMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      const cropLabels = sortedCrops.map(c => c[0]);
+      const cropValues = sortedCrops.map(c => Math.round(c[1]));
+
+      const ctxCrop = document.getElementById('chartTopCrops').getContext('2d');
+      if (chartTopCrops) chartTopCrops.destroy();
+      chartTopCrops = new Chart(ctxCrop, {
+        type: 'doughnut',
+        data: {
+          labels: cropLabels,
+          datasets: [{
+            data: cropValues,
+            backgroundColor: [
+              COLORS.green,
+              COLORS.blue,
+              COLORS.amber,
+              COLORS.dark,
+              COLORS.white
+            ],
+            borderColor: COLORS.dark,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: COLORS.dark,
+                font: { family: 'Prompt', weight: '600', size: 12 },
+                boxWidth: 14
+              }
+            },
+            tooltip: {
+              backgroundColor: COLORS.dark,
+              titleColor: COLORS.white,
+              bodyColor: COLORS.white,
+              callbacks: {
+                label: (ctx) => ` ${ctx.label}: ${ctx.raw.toLocaleString()} ไร่`
+              }
+            }
+          }
+        }
+      });
+
+      // 3. Area by Tambon
+      const tambonAreaMap = {};
+      filteredRecords.forEach(r => {
+        const t = r[C.tambon] || 'ไม่ระบุ';
+        tambonAreaMap[t] = (tambonAreaMap[t] || 0) + (r[C.area] || 0);
+      });
+
+      const sortedTambon = Object.entries(tambonAreaMap).sort((a,b) => b[1] - a[1]);
+      const ctxTambon = document.getElementById('chartTambon').getContext('2d');
+      if (chartTambon) chartTambon.destroy();
+      chartTambon = new Chart(ctxTambon, {
+        type: 'bar',
+        data: {
+          labels: sortedTambon.map(t => 'ต.' + t[0]),
+          datasets: [{
+            label: 'เนื้อที่ (ไร่)',
+            data: sortedTambon.map(t => Math.round(t[1])),
+            backgroundColor: COLORS.blue,
+            borderColor: COLORS.dark,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: COLORS.dark,
+              titleColor: COLORS.white,
+              bodyColor: COLORS.white,
+              callbacks: {
+                label: (ctx) => ` ${ctx.raw.toLocaleString()} ไร่`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: COLORS.dark, font: { family: 'Prompt' } },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { color: COLORS.dark, font: { family: 'Prompt', weight: '600' } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // 4. Channel & Status
+      let tbkApproved = 0, tbkPending = 0;
+      let fbApproved = 0, fbPending = 0;
+
+      filteredRecords.forEach(r => {
+        const ch = r[C.channel];
+        const isApp = (r[C.status] === 'ผ่าน');
+        if (ch === 'ทบก') {
+          if (isApp) tbkApproved++; else tbkPending++;
+        } else {
+          if (isApp) fbApproved++; else fbPending++;
+        }
+      });
+
+      const ctxChannel = document.getElementById('chartChannel').getContext('2d');
+      if (chartChannel) chartChannel.destroy();
+      chartChannel = new Chart(ctxChannel, {
+        type: 'bar',
+        data: {
+          labels: ['ทบก (ระบบเดิม)', 'FARMBOOK (โมบาย)'],
+          datasets: [
+            {
+              label: 'ผ่านการประชาคม',
+              data: [tbkApproved, fbApproved],
+              backgroundColor: COLORS.green,
+              borderColor: COLORS.dark,
+              borderWidth: 2
+            },
+            {
+              label: 'รอตรวจสอบ / อื่นๆ',
+              data: [tbkPending, fbPending],
+              backgroundColor: COLORS.amber,
+              borderColor: COLORS.dark,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: COLORS.dark,
+                font: { family: 'Prompt', weight: '600' }
+              }
+            },
+            tooltip: {
+              backgroundColor: COLORS.dark,
+              titleColor: COLORS.white,
+              bodyColor: COLORS.white,
+              callbacks: {
+                label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} แปลง`
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { color: COLORS.dark, font: { family: 'Prompt', weight: '600' } },
+              grid: { display: false }
+            },
+            y: {
+              stacked: true,
+              ticks: { color: COLORS.dark, font: { family: 'Prompt' } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    // Leaflet Map Initialization
+    function initMap() {
+      // Center on Huai Rat, Buriram [15.021, 103.241]
+      map = L.map('map', {
+        preferCanvas: true, // Canvas for high performance rendering of thousands of points
+        scrollWheelZoom: false
+      }).setView([15.021, 103.241], 12);
+
+      // Clean Light Basemap (CartoDB Positron) for high contrast
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 18
+      }).addTo(map);
+
+      mapMarkerLayer = L.layerGroup().addTo(map);
+    }
+
+    // Update Map Markers with strict 5 colors
+    function updateMapMarkers() {
+      if (!mapMarkerLayer) return;
+      mapMarkerLayer.clearLayers();
+
+      // Show up to 1,200 points on current map filter for ultra crisp 60fps responsiveness
+      const pointsToRender = filteredRecords.filter(r => r[C.lat] && r[C.lon]).slice(0, 1200);
+
+      pointsToRender.forEach(r => {
+        let color = COLORS.amber;
+        if (r[C.crop].includes('ข้าว')) {
+          color = COLORS.green;
+        } else if (r[C.crop] === 'มันสำปะหลัง' || r[C.crop] === 'ยางพารา') {
+          color = COLORS.blue;
+        }
+
+        const marker = L.circleMarker([r[C.lat], r[C.lon]], {
+          radius: 5,
+          fillColor: color,
+          color: COLORS.dark,
+          weight: 1.5,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+
+        const popupContent = `
+          <div style="font-size: 13px;">
+            <div style="font-weight: 700; border-bottom: 2px solid #0B132B; padding-bottom: 4px; margin-bottom: 6px;">
+              ${r[C.name]}
+            </div>
+            <div><strong>พืช:</strong> ${r[C.crop]} (${r[C.variety] || '-'})</div>
+            <div><strong>เนื้อที่:</strong> ${r[C.area]} ไร่</div>
+            <div><strong>ที่ตั้ง:</strong> หมู่ ${r[C.moo]} ต.${r[C.tambon]} อ.ห้วยราช</div>
+            <div><strong>สถานะ:</strong> <span style="font-weight:700; color:${r[C.status]==='ผ่าน' ? COLORS.green : COLORS.amber};">${r[C.status]}</span></div>
+            <div><strong>ปีทะเบียน:</strong> ${r[C.year]} (${r[C.channel]})</div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        mapMarkerLayer.addLayer(marker);
+      });
+    }
+
+    // Filtered by Search input for table
+    function getSearchedRecords(searchVal) {
+      if (!searchVal) return filteredRecords;
+      return filteredRecords.filter(r => {
+        return (
+          (r[C.name] && r[C.name].toLowerCase().includes(searchVal)) ||
+          (r[C.tambon] && r[C.tambon].toLowerCase().includes(searchVal)) ||
+          (r[C.crop] && r[C.crop].toLowerCase().includes(searchVal)) ||
+          (r[C.variety] && r[C.variety].toLowerCase().includes(searchVal)) ||
+          (r[C.doc] && r[C.doc].toLowerCase().includes(searchVal))
+        );
+      });
+    }
+
+    // Render Data Table with Pagination
+    function renderTable() {
+      const searchVal = document.getElementById('tableSearch').value.trim().toLowerCase();
+      const records = getSearchedRecords(searchVal);
+      const total = records.length;
+
+      const maxPage = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > maxPage) currentPage = maxPage;
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+      const pageData = records.slice(startIdx, endIdx);
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 24px; font-weight:600;">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
+      } else {
+        pageData.forEach((r, idx) => {
+          const tr = document.createElement('tr');
+
+          // Status Badge
+          let statusBadgeClass = 'badge-amber';
+          if (r[C.status] === 'ผ่าน') statusBadgeClass = 'badge-green';
+          else if (r[C.status].includes('ยกเลิก')) statusBadgeClass = 'badge-dark';
+
+          // Channel Badge
+          const channelBadgeClass = (r[C.channel] === 'FARMBOOK') ? 'badge-blue' : 'badge-dark';
+
+          tr.innerHTML = `
+            <td>${startIdx + idx + 1}</td>
+            <td style="font-weight: 700;">${r[C.name]}</td>
+            <td>ต.${r[C.tambon]}</td>
+            <td>หมู่ ${r[C.moo]}</td>
+            <td><strong>${r[C.crop]}</strong></td>
+            <td>${r[C.variety] || '-'}</td>
+            <td style="text-align: right; font-weight:700; color: ${COLORS.green};">${(r[C.area] || 0).toFixed(2)}</td>
+            <td>${r[C.doc]}</td>
+            <td><span class="badge ${statusBadgeClass}">${r[C.status]}</span></td>
+            <td><span class="badge ${channelBadgeClass}">${r[C.channel]}</span></td>
+            <td style="font-weight:700;">${r[C.year]}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Update Pagination info
+      document.getElementById('pageInfoText').textContent = 
+        `${total > 0 ? (startIdx + 1).toLocaleString() : 0} - ${endIdx.toLocaleString()} จากทั้งหมด ${total.toLocaleString()} รายการ`;
+      document.getElementById('pageCurrentNumber').textContent = `${currentPage} / ${maxPage}`;
+      document.getElementById('btnPrevPage').disabled = (currentPage <= 1);
+      document.getElementById('btnNextPage').disabled = (currentPage >= maxPage);
+    }
+
+    // Export to CSV with UTF-8 BOM
+    function exportCSV() {
+      const searchVal = document.getElementById('tableSearch').value.trim().toLowerCase();
+      const records = getSearchedRecords(searchVal);
+
+      if (records.length === 0) {
+        alert('ไม่มีข้อมูลให้ส่งออก');
+        return;
+      }
+
+      const headers = ['ชื่อ-นามสกุล', 'ตำบล', 'หมู่', 'ชนิดพืช', 'พันธุ์', 'เนื้อที่(ไร่)', 'เอกสารสิทธิ์', 'สถานะการประชาคม', 'ช่องทางบันทึก', 'ปีทะเบียน', 'วันที่ปลูก', 'วันที่เก็บเกี่ยว', 'ละติจูด', 'ลองจิจูด'];
+      
+      let csvContent = '\uFEFF'; // UTF-8 BOM for Microsoft Excel Thai support
+      csvContent += headers.map(h => `"${h}"`).join(',') + '\r\n';
+
+      records.forEach(r => {
+        const row = [
+          r[C.name],
+          r[C.tambon],
+          r[C.moo],
+          r[C.crop],
+          r[C.variety],
+          r[C.area],
+          r[C.doc],
+          r[C.status],
+          r[C.channel],
+          r[C.year],
+          r[C.plant],
+          r[C.harvest],
+          r[C.lat] || '',
+          r[C.lon] || ''
+        ];
+        csvContent += row.map(val => `"${String(val ?? '').replace(/"/g, '""')}"`).join(',') + '\r\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `ทะเบียนเกษตรกร_ห้วยราช_กรองข้อมูล_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
